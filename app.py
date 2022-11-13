@@ -5,7 +5,7 @@ from wtforms import StringField, PasswordField, BooleanField
 from wtforms.validators import InputRequired, Email, Length
 from flask_sqlalchemy  import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 
 
 app = Flask(__name__)
@@ -13,12 +13,20 @@ app.config['SECRET_KEY'] = 'Thisisapassword123'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////mnt/c/User/lukas/Documents/ViGi/final_project/final_project/database.db'
 bootstrap = Bootstrap(app)
 db = SQLAlchemy(app)
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
 
-class User(db.Model):
+
+class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(15), unique=True)
     email = db.Column(db.String(50), unique=True)
     password = db.Column(db.String(80))
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 class LoginForm(FlaskForm):
     username = StringField('username', validators=[InputRequired(), Length(min=4, max=15)])
@@ -42,6 +50,7 @@ def login():
         user = User.query.filter_by(username = form.username.data).first()
         if user:
             if check_password_hash(user.password, form.password.data):
+                login_user(user, remember=form.remember.data)
                 return redirect(url_for('notes'))
 
         return '<h1>Incorrect username or password</h1>'
@@ -58,7 +67,20 @@ def login():
         db.session.add(new_user)
         db.session.commit()
 
+        return '<h1>User has been created</h1>'
+
     return render_template('register.html', form=form)
+
+@app.route('/notes')
+@login_required
+def notes():
+    return render_template('notes.html', name=current_user.username)
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
 
 if __name__ == '__main__':
     app.run(debug=True)
