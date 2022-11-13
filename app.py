@@ -39,13 +39,23 @@ def login():
     form = LoginForm()
 
     if form.validate_on_submit():
-        return '<h1>'
+        user = User.query.filter_by(username = form.username.data).first()
+        if user:
+            if user.password == form.password.data:
+                return redirect(url_for('notes'))
+
+        return '<h1>Incorrect username or password</h1>'
 
     return render_template('login.html', form=form)
  
 @app.route('/register', methods = ['GET', 'POST'])
 def login():
     form = RegisterForm()
+
+    if form.validate_on_submit():
+        new_user = User(username=form.username.data, email=form.email.data, password=hashed_password)
+        db.session.add(new_user)
+        db.session.commit()
 
     return render_template('register.html', form=form)
 
