@@ -7,16 +7,14 @@ from flask_sqlalchemy  import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 
-
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'Thisisapassword123'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////mnt/c/User/lukas/Documents/ViGi/final_project/final_project/database.db'
+app.config['SECRET_KEY'] = 'kazkurkazkaopa'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////mnt/c/Users/lukas/Documents/final_project/final_project/database.db'
 bootstrap = Bootstrap(app)
 db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
-
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -38,27 +36,28 @@ class RegisterForm(FlaskForm):
     username = StringField('username', validators=[InputRequired(), Length(min=4, max=15)])
     password = PasswordField('password', validators=[InputRequired(), Length(min=8, max=80)])
 
+
 @app.route('/')
 def index():
     return render_template('index.html')
 
-@app.route('/login', methods = ['GET', 'POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
 
     if form.validate_on_submit():
-        user = User.query.filter_by(username = form.username.data).first()
+        user = User.query.filter_by(username=form.username.data).first()
         if user:
             if check_password_hash(user.password, form.password.data):
                 login_user(user, remember=form.remember.data)
                 return redirect(url_for('notes'))
 
-        return '<h1>Incorrect username or password</h1>'
+        return '<h1>Invalid username or password</h1>'
 
     return render_template('login.html', form=form)
- 
-@app.route('/register', methods = ['GET', 'POST'])
-def login():
+
+@app.route('/register', methods=['GET', 'POST'])
+def signup():
     form = RegisterForm()
 
     if form.validate_on_submit():
@@ -67,13 +66,13 @@ def login():
         db.session.add(new_user)
         db.session.commit()
 
-        return '<h1>User has been created</h1>'
-
+        return '<h1>New user has been created!</h1>'
+        
     return render_template('register.html', form=form)
 
 @app.route('/notes')
 @login_required
-def notes():
+def dashboard():
     return render_template('notes.html', name=current_user.username)
 
 @app.route('/logout')
