@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for
+from flask import Flask, render_template, redirect, url_for, request
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm 
 from wtforms import StringField, PasswordField, BooleanField
@@ -67,8 +67,8 @@ def signup():
         db.session.commit()
 
         return '<h1>New user has been created!</h1>'
-        
-    return render_template('register.html', form=form)
+
+    return render_template('login.html', form=form)
 
 @app.route('/notes')
 @login_required
