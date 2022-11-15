@@ -6,6 +6,7 @@ from wtforms.validators import InputRequired, Email, Length
 from flask_sqlalchemy  import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from .notes import Notes
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'kazkurkazkaopa'
@@ -69,6 +70,18 @@ def signup():
         return '<h1>New user has been created!</h1>'
 
     return render_template('login.html', form=form)
+
+@app.route("/add", methods=['GET', 'POST'])
+def add_note():
+
+    if request.method == "POST":
+        notes = Notes()
+        notes.add_note(request.form["content"])
+        # redirect after POST
+        return redirect(url_for('index'))
+
+    # GET requests...
+    return render_template("create.html")
 
 @app.route('/notes')
 @login_required

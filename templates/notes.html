@@ -2,13 +2,24 @@
 {% block title %}Notes{% endblock %}
 {% block content %}
 
-    <h1>Notes</h1>
+    <h1>Creating note</h1>
 
-    <form method="POST">
-        <textarea name="note" id="note"></textarea>
-        <br />
+    <form action="/add" method="post">
         <div>
-          <button type="submit">Add note</button>
+            <label>Content</label>
+            <div>
+                <textarea class="textarea"
+                        placeholder="Write your note here!"
+                        name="content"
+                        rows=15></textarea>
+            </div>
         </div>
-      </form>
+        <div>
+            <div>
+                <input
+                    type="submit"
+                    value="Save"/>
+            </div>
+        </div>
+    </form>
 {% endblock %}
